@@ -1,0 +1,4 @@
+lookForAlignDelims:
+   tabular: 
+      alignDoubleBackSlash: 0
+      dontMeasure: largest
