@@ -135,32 +135,32 @@ val s = friend or (s seq friend)
 \begin{frame}{Аналоги: Trails}
   Trails\footnote[1]{Kr\"{o}ni et al (2013). Parsing graphs: applying parser combinators to graph traversals} --- библиотека парсер-комбинаторов для запросов к графам.
 
-    Преимущества:
-          \begin{itemize}
-            \item Прост в использовании
-            \item Типизация контролирует корректность парсера
-          \end{itemize}
-    Недостатки:
-          \begin{itemize}
-            \item Не поддерживает леворекурсивные грамматики
-            \item Имеет ограниченную поддержку циклов
-            \item Экспоненциальная сложность
-          \end{itemize}
+  Преимущества:
+  \begin{itemize}
+    \item Прост в использовании
+    \item Типизация контролирует корректность парсера
+  \end{itemize}
+  Недостатки:
+  \begin{itemize}
+    \item Не поддерживает леворекурсивные грамматики
+    \item Имеет ограниченную поддержку циклов
+    \item Экспоненциальная сложность
+  \end{itemize}
 \end{frame}
 
 \begin{frame}{Аналоги: Meerkat}
   Meerkat --- изначально библиотека с комбинаторами для разбора текста, реализующий алгоритм из статьи \footnote[1]{\href{https://dl.acm.org/doi/10.1145/2847538.2847539}
     {Izmaylova et al (2016). Practical, General Parser Combinators}}, в последствии расширена поддержкой запросов к графам.
 
-    Преимущества:
-          \begin{itemize}
-            \item Поддерживает леворекурсивные грамматики и циклы в графе
-            \item Имеет сложность $O(n^3)$
-          \end{itemize}
-    Недостатки:
-          \begin{itemize}
-            \item Имеет проблемы с типизацией, обнаруживаются во время исполнения
-          \end{itemize}
+  Преимущества:
+  \begin{itemize}
+    \item Поддерживает леворекурсивные грамматики и циклы в графе
+    \item Имеет сложность $O(n^3)$
+  \end{itemize}
+  Недостатки:
+  \begin{itemize}
+    \item Имеет проблемы с типизацией, обнаруживаются во время исполнения
+  \end{itemize}
 \end{frame}
 
 
@@ -203,19 +203,19 @@ type Parser = (I) -> ParserResult<O, R>
 \begin{frame}[fragile]{Мемоизация результатов}
   \begin{itemize}
     \item Разбор может бесконечно выполняться: левая рекурсия, циклы
-    
+
     \item Хотим, чтобы вычисление парсера исполнялось один раз
 
-    \item Парсер в качестве результата теперь возвращает вычисление: 
-    \begin{minted}[frame=single,framesep=4pt, fontsize=\small]{text}
+    \item Парсер в качестве результата теперь возвращает вычисление:
+          \begin{minted}[frame=single,framesep=4pt, fontsize=\small]{text}
 type Parser = (I) -> (Continuation<O, R>) -> Unit
 \end{minted}
     \item Парсер мемоизирует вычисления для каждого входящего состояния
 
     \item Вычисление запоминает все результаты и продолжения, при появлении нового результата вызывает эти продолжения
-    
+
     \item Всем продолжениям будет переданы все результаты вычисления
-    
+
   \end{itemize}
 \end{frame}
 
@@ -236,9 +236,32 @@ type Parser = (I) -> (Continuation<O, R>) -> Unit
   \end{columns}
 \end{frame}
 
+\begin{frame}[fragile]{Набор данных для исследования времени работы}
+  \begin{itemize}
+    \item Взяты три набора данных: онтологии\footnote[1]{Zhang et al (2016). Context-free path queries on RDF graphs}, SFPQ\_Data\footnote[2]{https://formallanguageconstrainedpathquerying.github.io/CFPQ\_Data/graphs}, Yago\footnote[3]{https://gitlab.inria.fr/tyrex-public/rlqdag}
+    \item Для первых двух использовался одинаковый КС-запрос
+    \item Для Yago использовался регулярный запрос
+  \end{itemize}
+  \begin{columns}[t]
+    \begin{column}{0.46\textwidth}
+      \center{КС-запрос}
+      $Q_1 \to subclassof^{-1}\ Q1?\ subclassof$\\
+      $Q_1 \to type^{-1}\ Q1?\ type$\\
+    \end{column}
 
+    \begin{column}{0.6\textwidth}
+      \center{Регулярный запрос}
+      \begin{minted}[frame=single,fontsize=\footnotesize]{text}
+MATCH (x)-[:P74636308]->()-[:P59561600]->
+()-[:P13305537*1..]->()-[:P92580544*1..]->
+(:Entity{id:'40324616'}) RETURN DISTINCT x
+\end{minted}
+    \end{column}
+  \end{columns}
 
-\begin{frame}{Исследование времени работы}
+\end{frame}
+
+\begin{frame}{Результаты исследования времени работы}
   Для исследования добавлена поддержка базы данных Neo4j.
   \vspace*{-0.5\baselineskip}
   \begin{table}[h]
@@ -340,11 +363,7 @@ val grammar: Symbol[L, N, _] =
 
 
 \begin{frame}[fragile]{Запросы для исследования времени (yago)}
-  \begin{minted}[frame=single,fontsize=\footnotesize]{text}
-MATCH (x)-[:P74636308]->()-[:P59561600]->
-()-[:P13305537*1..]->()-[:P92580544*1..]->
-(:Entity{id:'40324616'}) RETURN DISTINCT x
-\end{minted}
+
 
   \begin{minted}[frame=single,fontsize=\footnotesize]{kotlin}
 (v { it.properties["id"] == "40324616" } seq
