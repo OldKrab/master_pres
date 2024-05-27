@@ -59,7 +59,7 @@
 }
 \date{\today}
 
-\frame{\titlepage}
+\frame{\titlepage\thispagestyle{empty}}
 
 \setlength{\parskip}{0.25cm}
 % Про графы
@@ -69,7 +69,8 @@
 
 \begin{frame}{Графовое представление данных}
   \begin{itemize}
-    \item Данные могут представляться в виде графа и храниться в графовых БД
+    \item Данные могут представляться в виде графа
+    \item Хранятся в графовых базах данных
     \item Вершины и ребра могут иметь свойства
   \end{itemize}
 
@@ -121,14 +122,8 @@ val s = |\textcolor{myred}{john}| seq |\textcolor{myblue}{pet}| seq |\textcolor{
 
 \begin{frame}[fragile]{Требования к комбинаторам}
   \begin{itemize}
-    \item Хотим описывать КС-ограничения
-          \begin{itemize}
-            \item Существуют применения в области биоинформатики\footnote{Sevon et al (2016). Subgraph Queries by Context-free Grammars}, статическом анализе\footnote{Reps (1997). Program analysis via graph reachability} и т.д.
-          \end{itemize}
-    \item Хотим разбирать циклы
-          \begin{itemize}
-            \item Результатов может быть бесконечно много
-          \end{itemize}
+    \item Описывать КС-ограничения: существуют применения в области биоинформатики\footnote[1]{Sevon et al (2016). Subgraph Queries by Context-free Grammars}, статическом анализе\footnote[2]{Reps (1997). Program analysis via graph reachability} и т.д.
+    \item Разбирать циклы: результатов может быть бесконечно много
   \end{itemize}
   \center{\includegraphics[scale=0.35]{images/gr_friend_loop.png}}
   \begin{minted}[frame=single,fontsize=\small]{kotlin}
@@ -137,39 +132,35 @@ val s = friend or (s seq friend)
 \end{frame}
 
 
-\begin{frame}{Trails}
-  Trails\footnote{Kr\"{o}ni et al (2013). Parsing graphs: applying parser combinators to graph traversals} --- библиотека парсер-комбинаторов для запросов к графам.
-  \begin{itemize}
-    \item Преимущества:
+\begin{frame}{Аналоги: Trails}
+  Trails\footnote[1]{Kr\"{o}ni et al (2013). Parsing graphs: applying parser combinators to graph traversals} --- библиотека парсер-комбинаторов для запросов к графам.
+
+    Преимущества:
           \begin{itemize}
             \item Прост в использовании
             \item Типизация контролирует корректность парсера
           \end{itemize}
-          \vspace{0.5cm}
-    \item Недостатки:
+    Недостатки:
           \begin{itemize}
             \item Не поддерживает леворекурсивные грамматики
             \item Имеет ограниченную поддержку циклов
             \item Экспоненциальная сложность
           \end{itemize}
-  \end{itemize}
 \end{frame}
 
-\begin{frame}{Meerkat}
-  Meerkat --- изначально библиотека с комбинаторами для разбора текста, реализующий алгоритм из статьи \footnote{\href{https://dl.acm.org/doi/10.1145/2847538.2847539}
+\begin{frame}{Аналоги: Meerkat}
+  Meerkat --- изначально библиотека с комбинаторами для разбора текста, реализующий алгоритм из статьи \footnote[1]{\href{https://dl.acm.org/doi/10.1145/2847538.2847539}
     {Izmaylova et al (2016). Practical, General Parser Combinators}}, в последствии расширена поддержкой запросов к графам.
-  \begin{itemize}
-    \item Преимущества:
+
+    Преимущества:
           \begin{itemize}
             \item Поддерживает леворекурсивные грамматики и циклы в графе
             \item Имеет сложность $O(n^3)$
           \end{itemize}
-          \vspace{0.5cm}
-    \item Недостатки:
+    Недостатки:
           \begin{itemize}
             \item Имеет проблемы с типизацией, обнаруживаются во время исполнения
           \end{itemize}
-  \end{itemize}
 \end{frame}
 
 
