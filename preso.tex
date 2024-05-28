@@ -19,6 +19,7 @@
 \usepackage{array}
 \usepackage{svg}
 \usepackage[table]{xcolor}
+\usepackage{multirow}
 
 \usepackage{listings}
 \setminted[c++]{
@@ -71,7 +72,7 @@
   \begin{itemize}
     \item Данные могут представляться в виде графа
     \item Хранятся в графовых базах данных
-    \item Вершины и ребра могут иметь свойства
+    \item Вершины и ребра могут иметь свойства вида <<ключ: значение>>
   \end{itemize}
 
   \center{\includegraphics[scale=0.4]{images/gr_example2.png}}
@@ -81,15 +82,17 @@
 
 \begin{frame}[fragile]{Языки запросов}
   \begin{itemize}
-    \item Для графов используются языки запросов, например, Cypher для Neo4j
-    \item Хотим бесшовную интеграцию запросов в язык программирования
-    \item Языки запросов можем использовать как строки:
+    \item Для доступа к данным используются языки запросов, например, Cypher для Neo4j
+    \item В пользовательском коде они могут использоваться как строки:
           \begin{minted}[frame=single,framesep=10pt, fontsize=\small]{java}
 tx.execute("MATCH (n {name: 'my node'}) RETURN n, n.name")
 \end{minted}
-
-    \item Отсутствие проверки корректности запроса на этапе компиляции
-    \item Сложно составлять и переиспользовать подзапросы
+    \item Недостатки:
+          \begin{itemize}
+            \item Отсутствие проверки корректности запроса на этапе компиляции
+            \item Сложно составлять и переиспользовать подзапросы
+          \end{itemize}
+    \item Удобно иметь бесшовную интеграцию запросов в язык программирования
   \end{itemize}
 
   % Result result = tx.execute( "MATCH (n {name: 'my node'}) RETURN n, n.name" ) )
@@ -120,57 +123,50 @@ val s = |\textcolor{myred}{john}| seq |\textcolor{myblue}{pet}| seq |\textcolor{
 
 \end{frame}
 
-\begin{frame}[fragile]{Требования к комбинаторам}
+\begin{frame}[fragile]{Дополнительные требования}
   \begin{itemize}
     \item Описывать КС-ограничения: существуют применения в области биоинформатики\footnote[1]{Sevon et al (2016). Subgraph Queries by Context-free Grammars}, статическом анализе\footnote[2]{Reps (1997). Program analysis via graph reachability} и т.д.
     \item Разбирать циклы: результатов может быть бесконечно много
   \end{itemize}
-  \center{\includegraphics[scale=0.35]{images/gr_friend_loop.png}}
-  \begin{minted}[frame=single,fontsize=\small]{kotlin}
-val s = friend or (s seq friend)
-\end{minted}
+  \begin{center}
+    \center{\includegraphics[scale=0.35]{images/gr_friend_loop.png}}
+  \end{center}
+  %   \begin{minted}[frame=single,fontsize=\small]{kotlin}
+  % val s = friend or (s seq friend)
+  % \end{minted}
+\end{frame}
+
+\begin{frame}{Аналоги}
+  \begin{table}[h]
+    \renewcommand{\arraystretch}{1.3}
+    \begin{tabular}{|b{0.25\linewidth}|b{0.35\linewidth}|b{0.35\linewidth}|}
+      \hline
+      \textbf{Свойства} & \textbf{Trails\footnote[1]{Kr\"{o}ni et al (2013). Parsing graphs: applying parser combinators to graph traversals}} & \textbf{Meerkat} \\
+      \hline
+      Принцип работы & Рекурсивный спуск                 & Подходы из статьи\footnote[2]{Izmaylova et al (2016). Practical, General Parser Combinators} \\
+      \hline
+      Сложность      & Экспоненциальная                  & Полиномиальная \\
+      \hline
+      Левая рекурсия & Нет                               & Да \\
+      \hline
+      Циклы в графе  & Ограничено                        & Да \\
+      \hline
+      Типизация      & Контролирует корректность парсера & Возможны некорректные парсеры \\
+      \hline
+    \end{tabular}
+  \end{table}
 \end{frame}
 
 
-\begin{frame}{Аналоги: Trails}
-  Trails\footnote[1]{Kr\"{o}ni et al (2013). Parsing graphs: applying parser combinators to graph traversals} --- библиотека парсер-комбинаторов для запросов к графам.
-
-  Преимущества:
-  \begin{itemize}
-    \item Прост в использовании
-    \item Типизация контролирует корректность парсера
-  \end{itemize}
-  Недостатки:
-  \begin{itemize}
-    \item Не поддерживает леворекурсивные грамматики
-    \item Имеет ограниченную поддержку циклов
-    \item Экспоненциальная сложность
-  \end{itemize}
-\end{frame}
-
-\begin{frame}{Аналоги: Meerkat}
-  Meerkat --- изначально библиотека с комбинаторами для разбора текста, реализующий алгоритм из статьи \footnote[1]{\href{https://dl.acm.org/doi/10.1145/2847538.2847539}
-    {Izmaylova et al (2016). Practical, General Parser Combinators}}, в последствии расширена поддержкой запросов к графам.
-
-  Преимущества:
-  \begin{itemize}
-    \item Поддерживает леворекурсивные грамматики и циклы в графе
-    \item Имеет сложность $O(n^3)$
-  \end{itemize}
-  Недостатки:
-  \begin{itemize}
-    \item Имеет проблемы с типизацией, обнаруживаются во время исполнения
-  \end{itemize}
-\end{frame}
 
 
 \begin{frame}{Цель и задачи}
   \textbf{Цель:} разработать библиотеку комбинаторов запросов к графам на основе алгоритмов, предложенных в работе \footnote[1]{\href{https://dl.acm.org/doi/10.1145/2847538.2847539}
-    {Izmaylova et al (2016). Practical, General Parser Combinators}}, позволяющую описывать правильно типизированные парсеры.
+    {Izmaylova et al (2016). Practical, General Parser Combinators}}, позволяющую описывать корректные парсеры.
 
   \textbf{Задачи:}
   \begin{enumerate}
-    \item Разработать базовую структуру парсера и комбинаторов с правильной типизацией
+    \item Разработать базовую структуру парсера и комбинаторов с корректной типизацией
     \item Поддержать левую рекурсию в грамматике
     \item Поддержать разбор циклов в графе
     \item Сравнить скорость работы с другими решениями
@@ -178,15 +174,17 @@ val s = friend or (s seq friend)
 \end{frame}
 
 
-\begin{frame}[fragile]{Базовая структура парсера}
+\begin{frame}[fragile]{Реализация: базовая структура парсера}
+  Решение разработано на языке Kotlin.
   \begin{minted}[frame=single,framesep=10pt, fontsize=\small]{kotlin}
-type Parser = (I) -> ParserResult<O, R>
+type Parser = (In) -> ParserResult<Out, Res>
   \end{minted}
   \begin{itemize}
-    \item Принимает входящее состояние, возвращает множество выходящий состояний и результатов
+    \item Парсер принимает входящее состояние, возвращает множество выходящий состояний и результатов
     \item Состояние: вершина, ребро, стартовое
     \item Базовые парсеры: \texttt{v, edge, inE, outE, inV, outV}
     \item Комбинаторы: \texttt{seq, or, many и т.д.}
+    \item Комбинаторы запрещают объединять парсеры с конфликтующими типами состояний
   \end{itemize}
 
   %   \begin{minted}[frame=single, fontsize=\small]{kotlin}
@@ -200,15 +198,15 @@ type Parser = (I) -> ParserResult<O, R>
 
 
 
-\begin{frame}[fragile]{Мемоизация результатов}
+\begin{frame}[fragile]{Левая рекурсия: мемоизация результатов}
   \begin{itemize}
-    \item Разбор может бесконечно выполняться: левая рекурсия, циклы
+    \item Разбор может бесконечно выполняться: левая рекурсия
 
     \item Хотим, чтобы вычисление парсера исполнялось один раз
 
     \item Парсер в качестве результата теперь возвращает вычисление:
-          \begin{minted}[frame=single,framesep=4pt, fontsize=\small]{text}
-type Parser = (I) -> (Continuation<O, R>) -> Unit
+          \begin{minted}[frame=single,framesep=4pt, fontsize=\small, escapeinside=||]{text}
+type Parser = (In) -> (Continuation|\footnote[1]{Можно воспринимать как callback}|<Out, Res>) -> Unit
 \end{minted}
     \item Парсер мемоизирует вычисления для каждого входящего состояния
 
@@ -220,7 +218,7 @@ type Parser = (I) -> (Continuation<O, R>) -> Unit
 \end{frame}
 
 
-\begin{frame}{Генерация SPPF}
+\begin{frame}{Циклы в графе: генерация SPPF}
   \begin{columns}[c]
     \begin{column}{0.55\textwidth}
       \begin{itemize}
@@ -238,6 +236,7 @@ type Parser = (I) -> (Continuation<O, R>) -> Unit
 
 \begin{frame}[fragile]{Набор данных для исследования времени работы}
   \begin{itemize}
+    \item Для исследования добавлена поддержка базы данных Neo4j
     \item Взяты три набора данных: онтологии\footnote[1]{Zhang et al (2016). Context-free path queries on RDF graphs}, SFPQ\_Data\footnote[2]{https://formallanguageconstrainedpathquerying.github.io/CFPQ\_Data/graphs}, Yago\footnote[3]{https://gitlab.inria.fr/tyrex-public/rlqdag}
     \item Для первых двух использовался одинаковый КС-запрос
     \item Для Yago использовался регулярный запрос
@@ -245,8 +244,11 @@ type Parser = (I) -> (Continuation<O, R>) -> Unit
   \begin{columns}[t]
     \begin{column}{0.46\textwidth}
       \center{КС-запрос}
-      $Q_1 \to subclassof^{-1}\ Q1?\ subclassof$\\
-      $Q_1 \to type^{-1}\ Q1?\ type$\\
+
+      \begin{minted}[frame=single,fontsize=\small, escapeinside=||]{text}
+|$Q_1 \to subclassof^{-1}\ Q1?\ subclassof$|
+|$Q_1 \to type^{-1}\ Q1?\ type$|
+\end{minted}
     \end{column}
 
     \begin{column}{0.6\textwidth}
@@ -262,26 +264,25 @@ MATCH (x)-[:P74636308]->()-[:P59561600]->
 \end{frame}
 
 \begin{frame}{Результаты исследования времени работы}
-  Для исследования добавлена поддержка базы данных Neo4j.
-  \vspace*{-0.5\baselineskip}
+  \vspace*{-0.9\baselineskip}
   \begin{table}[h]
-    \renewcommand{\arraystretch}{1.1}
-    \begin{tabular}{|b{0.21\linewidth}|b{0.16\linewidth}|b{0.16\linewidth}|>{\columncolor{yellow!20}}b{0.15\linewidth}|b{0.15\linewidth}|}
+    \renewcommand{\arraystretch}{1.3}
+    \begin{tabular}{|b{0.02\linewidth}|b{0.21\linewidth}|b{0.15\linewidth}|b{0.15\linewidth}|>{\columncolor{yellow!20}}b{0.15\linewidth}|b{0.14\linewidth}|}
       \hline
-      \textbf{Граф}  & \textbf{Кол-во вершин} & \textbf{Кол-во рёбер} & \textbf{Мое реш. (мс)} & \textbf{Meerkat (мс)} \\
+      \multicolumn{2}{|c|}{\textbf{Граф}} & \textbf{Кол-во вершин} & \textbf{Кол-во рёбер} & \textbf{Мое реш. (мс)} & \textbf{Meerkat (мс)} \\
       \hline
-      atom-primitive & 291        & 685        & \textbf{19.5} & 22.0 \\
-      b.-m.-p.\footnote[1]{biomedical-mesure-primitive} & 341        & 711        & \textbf{23.5} & 42.5 \\
-      generations    & 129        & 351        & \textbf{1.3}  & 1.4 \\
-      pizza          & 671        & 2,604      & \textbf{61.4} & 123.9 \\
+      \multirow{4}{*}{\rotatebox{90}{онтологии}}         & atom-primitive         & 291        & 685           & \textbf{19.5} & 22.0 \\
+                                 & b.-m.-p.\footnote[1]{biomedical-mesure-primitive} & 341        & 711           & \textbf{23.5} & 42.5 \\
+                                 & generations            & 129        & 351           & \textbf{1.3}  & 1.4 \\
+                                 & pizza                  & 671        & 2,604         & \textbf{61.4} & 123.9 \\
       \hline
 
-      enzyme         & 48,815     & 86,543     & 121           & \textbf{116} \\
-      eclass         & 239,111    & 360,248    & 1220          & \textbf{1095} \\
-      go             & 582,929    & 1,437,437  & 6231          & \textbf{5367} \\
-      go\_hierarchy  & 45,007     & 490,109    & 12015         & \textbf{8337} \\
+      \multirow{4}{*}{\rotatebox{90}{SFPQ\_Data}}         & enzyme                 & 48,815     & 86,543        & 121           & \textbf{116} \\
+                                 & eclass                 & 239,111    & 360,248       & 1220          & \textbf{1095} \\
+                                 & go                     & 582,929    & 1,437,437     & 6231          & \textbf{5367} \\
+                                 & go\_hierarchy          & 45,007     & 490,109       & 12015         & \textbf{8337} \\
       \hline
-      yago           & 42,832,856 & 62,643,951 & \textbf{5558} & OOM \\
+      \multicolumn{2}{|c|}{yago} & 42,832,856             & 62,643,951 & \textbf{5558} & OOM \\
       \hline
     \end{tabular}
   \end{table}
@@ -291,7 +292,7 @@ MATCH (x)-[:P74636308]->()-[:P59561600]->
 \begin{frame}{Результаты}
   \begin{itemize}
     \item Разработаны базовая структура парсера и комбинаторов, проверяющая корректность во время компиляции
-    \item Поддержаны леворекурсивные и неоднозначные грамматики
+    \item Поддержаны леворекурсивные грамматики
     \item Поддержан разбор циклов в графе
     \item Реализована базовая поддержка Neo4j графов
     \item Проведено исследование времени работы: время сопоставимо с Meerkat
@@ -302,6 +303,12 @@ MATCH (x)-[:P74636308]->()-[:P59561600]->
 % --------- ДОП СЛАЙДЫ -------------
 \appendix
 
+
+\begin{frame}{Аналоги: Meerkat}
+  Meerkat --- изначально библиотека с комбинаторами для разбора текста, реализующий алгоритм из статьи \footnote[1]{\href{https://dl.acm.org/doi/10.1145/2847538.2847539}
+    {Izmaylova et al (2016). Practical, General Parser Combinators}}, в последствии расширена поддержкой запросов к графам\footnote{Verbitskaia et al (2018). Parser combinators for context-free path querying}.
+
+\end{frame}
 
 \begin{frame}[fragile]{Сигнатуры комбинаторов}
 
