@@ -1,0 +1,26 @@
+digraph {
+nodesep=0.1;
+ranksep=0.2;
+edge [arrowsize=0.75];
+
+"S, V(x), V(x)" [label="S, V(x), V(x)", shape=box, style=rounded, width=0.75, height=0.5, ordering=""]
+"org.parser.sppf.PackedNode@279ad2e3" [label="", shape=box, style="", width=0.1, height=0.1, ordering="out"]
+"ε, V(x)" [label="ε, V(x), V(x)", shape=box, style="", width=0.75, height=0.5, ordering=""]
+"org.parser.sppf.PackedNode@279ad2e3" -> "ε, V(x)"
+"org.parser.sppf.PackedNode@58134517" [label="", shape=box, style="", width=0.1, height=0.1, ordering="out"]
+"S a x, V(x), V(x)" [label="S a x, V(x), V(x)", shape=box, style=rounded, width=0.75, height=0.5, ordering=""]
+"org.parser.sppf.PackedNode@4450d156" [label="", shape=box, style="", width=0.1, height=0.1, ordering="out"]
+"S a, V(x), E(a)" [label="S a, V(x), E(a)", shape=box, style=rounded, width=0.75, height=0.5, ordering=""]
+"org.parser.sppf.PackedNode@4461c7e3" [label="", shape=box, style="", width=0.1, height=0.1, ordering="out"]
+"org.parser.sppf.PackedNode@4461c7e3" -> "S, V(x), V(x)"
+"E(a), V(x), E(a)" [label="a, V(x), E(a)", shape=box, style="", width=0.75, height=0.5, ordering=""]
+"org.parser.sppf.PackedNode@4461c7e3" -> "E(a), V(x), E(a)"
+"S a, V(x), E(a)" -> "org.parser.sppf.PackedNode@4461c7e3"
+"org.parser.sppf.PackedNode@4450d156" -> "S a, V(x), E(a)"
+"V(x), E(a), V(x)" [label="x, E(a), V(x)", shape=box, style="", width=0.75, height=0.5, ordering=""]
+"org.parser.sppf.PackedNode@4450d156" -> "V(x), E(a), V(x)"
+"S a x, V(x), V(x)" -> "org.parser.sppf.PackedNode@4450d156"
+"org.parser.sppf.PackedNode@58134517" -> "S a x, V(x), V(x)"
+"S, V(x), V(x)" -> "org.parser.sppf.PackedNode@279ad2e3"
+"S, V(x), V(x)" -> "org.parser.sppf.PackedNode@58134517"
+}
