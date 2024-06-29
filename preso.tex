@@ -20,7 +20,7 @@
 \usepackage{svg}
 \usepackage[table]{xcolor}
 \usepackage{multirow}
-
+\usepackage{url}
 \usepackage{listings}
 \setminted[c++]{
   linenos=true,
@@ -343,6 +343,23 @@ RETURN DISTINCT x
 
 
 
+% Meerkat, Gparsers
+% atom-primitive.owl,38,50
+% biomedical-mesure-primitive.owl,48,50
+% eclass.csv,310,398
+% enzyme.csv,82,102
+% foaf.rdf,24,32
+% generations.owl,22,30
+% geospecies.csv,1466,722
+% go.csv,983,920
+% go_hierarchy.csv,266,96
+% people_pets.rdf,31,36
+% pizza.owl,90,90
+% skos.rdf,22,30
+% travel.owl,24,30
+% univ-bench.owl,24,30
+% wine.rdf,100,90
+
 %=============================================
 
 \begin{frame}{Результаты}
@@ -455,10 +472,68 @@ inE((e: Entity) => e.label() == "P74636308"))
 
 \end{frame}
 
+\begin{frame}{Результаты исследования потребления памяти}
+  \vspace*{-0.9\baselineskip}
+  \begin{table}[h]
+    \renewcommand{\arraystretch}{1.3}
+    \begin{tabular}{|b{0.02\linewidth}|b{0.21\linewidth}|b{0.15\linewidth}|b{0.15\linewidth}|>{\columncolor{yellow!20}}b{0.15\linewidth}|b{0.14\linewidth}|}
+      \hline
+      \multicolumn{2}{|c|}{\textbf{Граф}}        & \textbf{Кол-во вершин}    & \textbf{Кол-во рёбер} & \textbf{Мое реш. (мб)} & \textbf{Meerkat (мб)} \\
+      \hline
+      \multirow{4}{*}{\rotatebox{90}{онтологии}} & atom-primitive            & 291        & 685        & 50 & \textbf{38} \\
+                                                 & b.-m.-p.\footnote[1]{biomedical-mesure-primitive} & 341        & 711        & 50 & \textbf{48} \\
+                                                 & generations               & 129        & 351        & 30  & \textbf{22} \\
+                                                 & pizza                     & 671        & 2,604      & 90 & 90 \\
+      \hline
+
+      \multirow{4}{*}{\rotatebox{90}{SFPQ\_Data}} & enzyme                    & 48,815     & 86,543     & 102           & \textbf{82} \\
+                                                 & eclass                    & 239,111    & 360,248    & 398          & \textbf{310} \\
+                                                 & go                        & 582,929    & 1,437,437  & \textbf{920}          & 983 \\
+                                                 & go\_hierarchy             & 45,007     & 490,109    & \textbf{96}         & 266 \\
+      \hline
+    \end{tabular}
+  \end{table}
+\end{frame}
+
+\begin{frame}{Время работы от плотности меток}
+  \vspace*{-0.9\baselineskip}
+  \begin{table}[h]
+    \renewcommand{\arraystretch}{1.3}
+    \begin{tabular}{|b{0.02\linewidth}|b{0.21\linewidth}|b{0.15\linewidth}|b{0.17\linewidth}|b{0.15\linewidth}|b{0.15\linewidth}|}
+      \hline
+      \multicolumn{2}{|c|}{\textbf{Граф}}        & \textbf{Кол-во меток type} & \textbf{Кол-во меток subclassof} & \textbf{Кол-во ребер} & \textbf{Мое реш. (мс)} \\
+      \hline
+      \multirow{4}{*}{\rotatebox{90}{онтологии}} & atom-primitive             & 138     & 122     &  685 & 19.5 \\
+                                                 & b.-m.-p.\footnote[1]{biomedical-mesure-primitive} & 130     & 122     & 711 & 23.5 \\
+                                                 & generations                & 78      & 0       & 351 & 1.3 \\
+                                                 & pizza                      & 365     & 259     & 2,604 & 61.4 \\
+      \hline
+
+      \multirow{4}{*}{\rotatebox{90}{SFPQ\_Data}} & enzyme                     & 14,989  & 8,163   & 86,543 & 121 \\
+                                                 & eclass                     & 72,517  & 90,962  & 360,248 & 1220 \\
+                                                 & go                         & 226,481 & 94,514  & 1,437,437 & 6231 \\
+                                                 & go\_hierarchy              & 0       & 490,109 & 490,109 & 12015 \\
+      \hline
+    \end{tabular}
+
+  \end{table}
+\end{frame}
 
 
 
+\begin{frame}{Хранение SPPF узлов}
+  \begin{itemize}
+    \item Если одинаковые узлы создаются в разных парсерах, то это должны быть одинаковые объекты
+    \item Поэтому используется единое хранилище узлов SPPF
+    \item Хранилище позволяет либо создать новый узел, либо вернуть существующий
+    \item Хранилище общее для всех парсеров во время одного разбора
+    \item Можно попробовать хранить узлы локально в каждом парсере, но нужно убедится в корректности такого подхода
+  \end{itemize}
+\end{frame}
 
+\begin{frame}{Исходный код}
+ Исходный код доступен в репозитории GitHub: \url{https://github.com/OldKrab/kotlin_graph_parsers}
+\end{frame}
 
 \end{document}
 
